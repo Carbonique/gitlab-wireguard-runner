@@ -1,0 +1,6 @@
+---
+# Based on the 'ansible-role-docker' by the great Jeff Geerling aka Geerlingguy (https://github.com/geerlingguy/ansible-role-docker)
+
+- name: restart docker
+  service: "name=docker state={{ docker_restart_handler_state }}"
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,1 @@
+wireguard_config_directory: "{{ lookup('env', 'WIREGUARD_CONFIG_DIRECTORY') }}"

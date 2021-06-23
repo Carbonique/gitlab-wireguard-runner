@@ -1,0 +1,83 @@
+include:
+  - project: '${CI_PROJECT_ROOT_NAMESPACE}/gitlab-ci-templates'
+    ref: main
+    file: '/ansible/deploy/.gitlab-ci.yml'
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  TF_VAR_SSH_PUBLIC_KEY: $SSH_PUBLIC_KEY
+  TF_ADDRESS: YOUR_PROJECT_HERE
+
+image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+
+stages:
+  - terraform
+  - ansible
+  - schedule_pipeline
+  - destroy
+
+create:
+  stage: terraform
+   before_script:
+    - cd ${TF_ROOT}
+  script:
+    - gitlab-terraform init
+    - gitlab-terraform validate
+    - gitlab-terraform plan
+    - gitlab-terraform plan-json
+    - gitlab-terraform apply
+  artifacts:
+    paths:
+      - ${TF_ROOT}/instance_ips.ini
+    expire_in: 1 hour
+    cache:
+      key: gitlab-runner
+      paths:
+        - ${TF_ROOT}/.terraform
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE != "schedule"'
+        when: always
+
+ansible_deploy:
+    stage: ansible
+    extends: .ansible_deploy
+    variables:
+      ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
+      ANSIBLE_PLAYBOOK_DIRECTORY: ansible
+      ANSIBLE_PLAYBOOK: playbook.yml
+    dependencies: 
+      - create
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE != "schedule"'
+        when: always
+
+schedule-destroy:
+  variables:
+    timezone: UTC
+  stage: schedule_pipeline
+  image: dwdraju/alpine-curl-jq
+  script: 
+    - ${CI_PROJECT_DIR}/destroy-scheduler/schedule_destroy.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: always
+
+destroy:
+  stage: destroy
+  script:
+    - gitlab-terraform destroy
+    - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
+  dependencies:
+    - create
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
+

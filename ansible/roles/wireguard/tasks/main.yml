@@ -1,0 +1,27 @@
+- name: Install resolvconf
+  apt:
+    name:
+      - resolvconf
+
+- name: Install wireguard
+  apt:
+    name: wireguard
+    state: present
+
+- name: Create wireguard directory
+  file:
+    path: /etc/wireguard
+    owner: root
+    group: root
+    mode: 600
+    state: directory
+
+- name: Copy wireguard config into /etc/wireguard
+  ansible.builtin.copy:
+    src: "{{ wireguard_config_directory }}/wireguard-encrypted-config-{{groups['all'].index(inventory_hostname)}}.yml"
+    dest: "/etc/wireguard/wireguardclient.conf"
+    decrypt: yes
+    owner: root
+    group: root
+    mode: 600
+  notify: wg_restart
