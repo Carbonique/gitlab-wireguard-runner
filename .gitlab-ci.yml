@@ -3,12 +3,17 @@ include:
     ref: main
     file: '/ansible/deploy/.gitlab-ci.yml'
 
+# Only run when triggered from web interface
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - when: never
+
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/terraform
   TF_VAR_SSH_PUBLIC_KEY: $SSH_PUBLIC_KEY
   TF_ADDRESS: YOUR_PROJECT_HERE
-
-image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
 
 stages:
   - terraform
@@ -18,7 +23,8 @@ stages:
 
 create:
   stage: terraform
-   before_script:
+  image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+  before_script:
     - cd ${TF_ROOT}
   script:
     - gitlab-terraform init
@@ -30,30 +36,28 @@ create:
     paths:
       - ${TF_ROOT}/instance_ips.ini
     expire_in: 1 hour
-    cache:
-      key: gitlab-runner
-      paths:
+  cache:
+    key: gitlab-runner
+    paths:
         - ${TF_ROOT}/.terraform
-    rules:
-      - if: '$CI_PIPELINE_SOURCE == "schedule"'
-        when: never
-      - if: '$CI_PIPELINE_SOURCE != "schedule"'
-        when: always
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
 
+# Uses template file as template
 ansible_deploy:
     stage: ansible
-    extends: .ansible_deploy
     variables:
       ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
-      ANSIBLE_PLAYBOOK_DIRECTORY: ansible
-      ANSIBLE_PLAYBOOK: playbook.yml
     dependencies: 
       - create
     rules:
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
         when: never
       - if: '$CI_PIPELINE_SOURCE != "schedule"'
-        when: always
+        when: on_success
 
 schedule-destroy:
   variables:
@@ -66,7 +70,7 @@ schedule-destroy:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: always
+      when: on_success
 
 destroy:
   stage: destroy
