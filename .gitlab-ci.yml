@@ -1,7 +1,7 @@
-include: 'https://gitlab.com/pipeline-templates/gitlab-ci-templates/-/blob/main/ansible/deploy/.gitlab-ci.yml'
-#  - project: '${CI_PROJECT_ROOT_NAMESPACE}/gitlab-ci-templates'
-#    ref: main
-#    file: '/ansible/deploy/.gitlab-ci.yml'
+include: 
+  - project: '${CI_PROJECT_ROOT_NAMESPACE}/gitlab-ci-templates'
+    ref: main
+    file: '/ansible/deploy/.gitlab-ci.yml'
 
 # Only run when triggered from web interface
 workflow:
