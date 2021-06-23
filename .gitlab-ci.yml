@@ -61,7 +61,7 @@ ansible_deploy:
 
 schedule-destroy:
   variables:
-    timezone: UTC
+    TIMEZONE: UTC
   stage: schedule_pipeline
   image: dwdraju/alpine-curl-jq
   script: 

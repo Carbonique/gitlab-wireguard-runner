@@ -21,5 +21,5 @@ fi
 curl --request POST --header "PRIVATE-TOKEN:$PIPELINE_ACCESS_TOKEN" \
     --form description="Destroy runners" \
     --form ref="main" \
-    --form cron="$cronminute * * * *" --form cron_timezone="$timezone" \
+    --form cron="$cronminute * * * *" --form cron_timezone="$TIMEZONE" \
     --form active="true" "https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/pipeline_schedules"
