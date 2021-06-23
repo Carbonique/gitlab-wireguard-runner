@@ -3,17 +3,16 @@ include:
     ref: main
     file: '/ansible/deploy/.gitlab-ci.yml'
 
-# Only run when triggered from web interface
+# Never run as this is a template. Override this in the implementation
 workflow:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-      when: always
     - when: never
 
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/terraform
   TF_VAR_SSH_PUBLIC_KEY: $SSH_PUBLIC_KEY
   TF_ADDRESS: YOUR_PROJECT_HERE
+  GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
   - terraform
