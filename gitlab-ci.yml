@@ -14,7 +14,6 @@ variables:
   TF_ADDRESS: YOUR_PROJECT_HERE
   GIT_SUBMODULE_STRATEGY: recursive
   WIREGUARD_CONFIG_DIRECTORY: ${CI_PROJECT_DIR}/wireguard-configs
-  GITLAB_WIREGUARD_RUNNER_VERSION: 1.0.0
 
 image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
 
@@ -25,7 +24,6 @@ cache:
 
 before_script:
   - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git
-  - git checkout $GITLAB_WIREGUARD_RUNNER_VERSION
   - cd ${TF_ROOT}
 
 stages:
