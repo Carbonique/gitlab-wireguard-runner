@@ -23,7 +23,7 @@ cache:
 before_script:
   - ls 
   - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
-  - mv $CI_PROJECT_DIR/tmp/* $CI_PROJECT_DIR/gitlab-wireguard-runner/
+  - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/
   - rm -rf $CI_PROJECT_DIR/tmp
   - cd ${TF_ROOT}
   - ls 
