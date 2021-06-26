@@ -22,12 +22,10 @@ cache:
 
 #Weird, but works: Template clones it own repo, so you only have to include the .gitlab-ci.yml in the implementation project
 before_script:
-  - ls 
   - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
   - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
   - rm -rf $CI_PROJECT_DIR/tmp
   - cd ${TF_ROOT}
-  - ls 
 
 stages:
   - prepare
@@ -92,30 +90,30 @@ apply:
       when: on_success
 
 # Uses template file as template
-ansible_deploy:
-  stage: ansible
-  variables:
-    ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
-  dependencies: 
-    - apply
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: on_success
-
-schedule-destroy:
-  variables:
-    TIMEZONE: UTC
-  stage: schedule_pipeline
-  image: dwdraju/alpine-curl-jq
-  script: 
-    - ${CI_PROJECT_DIR}/destroy-scheduler/schedule_destroy.sh
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: on_success
+#ansible_deploy:
+#  stage: ansible
+#  variables:
+#    ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
+#  dependencies: 
+#    - apply
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+#      when: on_success
+#
+#schedule-destroy:
+#  variables:
+#    TIMEZONE: UTC
+#  stage: schedule_pipeline
+#  image: dwdraju/alpine-curl-jq
+#  script: 
+#    - ${CI_PROJECT_DIR}/destroy-scheduler/schedule_destroy.sh
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+#      when: on_success
 
 destroy:
   stage: destroy
