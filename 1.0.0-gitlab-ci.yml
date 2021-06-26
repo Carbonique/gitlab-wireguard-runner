@@ -33,8 +33,8 @@ stages:
   - schedule_pipeline
   - destroy
 
-prepare:
-  stage: terraform
+init:
+  stage: prepare
   script:
     - gitlab-terraform init
   rules:
