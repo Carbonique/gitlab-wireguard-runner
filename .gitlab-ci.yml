@@ -20,12 +20,13 @@ cache:
   paths:
       - ${TF_ROOT}/.terraform
 
-#before_script:
-#  - ls 
-#  - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git
-#  - ls 
-#  - cd ${TF_ROOT}
-#  - ls
+before_script:
+  - ls 
+  - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git tmp
+  - mv tmp/* gitlab-wireguard-runner/
+  - ls 
+  - cd ${TF_ROOT}
+  - ls
 
 stages:
   - prepare
