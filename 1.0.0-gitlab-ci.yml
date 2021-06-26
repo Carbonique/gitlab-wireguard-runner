@@ -76,7 +76,6 @@ apply:
     - gitlab-terraform apply
   dependencies:
     - plan
-  when: manual
   artifacts:
     paths:
       - ${TF_ROOT}/instance_ips.ini
