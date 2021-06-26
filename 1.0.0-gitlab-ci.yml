@@ -92,7 +92,7 @@ ansible_deploy:
   variables:
     ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
   dependencies: 
-    - create
+    - apply
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
