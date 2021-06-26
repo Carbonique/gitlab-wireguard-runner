@@ -118,7 +118,7 @@ destroy:
     - gitlab-terraform destroy
     - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
   dependencies:
-    - create
+    - apply
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
