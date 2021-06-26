@@ -5,14 +5,15 @@ workflow:
   rules:
     - when: never
 
+#Note: Variables are relative to the project in which this template is used.
 variables:
-  TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  TF_ROOT: ${CI_PROJECT_DIR}/gitlab-wireguard-runner/terraform
   TF_STATE_NAME: gitlab-wireguard-runner
   TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/$TF_STATE_NAME
   TF_VAR_SSH_PUBLIC_KEY: $SSH_PUBLIC_KEY
   TF_ADDRESS: YOUR_PROJECT_HERE
   GIT_SUBMODULE_STRATEGY: recursive
-  WIREGUARD_CONFIG_DIRECTORY: $CI_PROJECT_DIR/wireguard-configs
+  WIREGUARD_CONFIG_DIRECTORY: ${CI_PROJECT_DIR}/wireguard-configs
 
 image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
 
