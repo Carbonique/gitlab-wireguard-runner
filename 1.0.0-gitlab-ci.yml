@@ -12,6 +12,7 @@ variables:
   TF_VAR_SSH_PUBLIC_KEY: $SSH_PUBLIC_KEY
   TF_ADDRESS: YOUR_PROJECT_HERE
   GIT_SUBMODULE_STRATEGY: recursive
+  WIREGUARD_CONFIG_DIRECTORY: $CI_PROJECT_DIR/wireguard-configs
 
 stages:
   - terraform
