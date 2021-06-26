@@ -1,4 +1,4 @@
-include: "https://gitlab.com/pipeline-templates/gitlab-ci-templates/-/raw/main/ansible/deploy/.gitlab-ci.yml"
+include: "https://gitlab.com/pipeline-templates/gitlab-ci-templates/-/raw/main/ansible/deploy/1.0.0-gitlab-ci.yml"
 
 # Never run as this is a template. Override this in the implementation
 workflow:
