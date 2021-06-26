@@ -39,12 +39,6 @@ stages:
 
 init:
   stage: prepare
-  before_script:
-  - ls 
-  - cd $CI_PROJECT_DIR/gitlab-wireguard-runner
-  - ls
-  - cd ${TF_ROOT}
-  - ls
   script:
     - gitlab-terraform init
   rules:
@@ -55,12 +49,6 @@ init:
 
 validate:
   stage: validate
-  before_script:
-  - ls 
-  - cd $CI_PROJECT_DIR/gitlab-wireguard-runner
-  - ls
-  - cd ${TF_ROOT}
-  - ls
   script:
     - gitlab-terraform validate
   rules:
