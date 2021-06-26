@@ -1,4 +1,4 @@
-include: "https://gitlab.com/pipeline-templates/gitlab-ci-templates/-/raw/main/ansible/deploy/1.0.0-gitlab-ci.yml"
+include: "https://gitlab.com/pipeline-templates/gitlab-ci-templates/-/raw/main/ansible/deploy/ansible-deploy-template.yml"
 
 # Never run as this is a template. Override this in the implementation
 workflow:
@@ -23,7 +23,8 @@ cache:
       - ${TF_ROOT}/.terraform
 
 before_script:
-  - ls
+  - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git
+  - git checkout $GITLAB_WIREGUARD_RUNNER_VERSION
   - cd ${TF_ROOT}
 
 stages:
