@@ -100,7 +100,7 @@ stages:
 #  extends: .ansible_deploy_template
 #  stage: ansible
 #  variables:
-#    ANSIBLE_INVENTORY: 52.16.98.86, #${TF_ROOT}/instance_ips.ini
+#    ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
 #    ANSIBLE_PLAYBOOK_DIRECTORY: gitlab-wireguard-runner/ansible
 #  before_script:
 #    - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
@@ -121,7 +121,7 @@ schedule-destroy:
   variables:
     TIMEZONE: UTC
   stage: schedule_pipeline
-  image: dwdraju/alpine-curl-jq
+  image: registry.gitlab.com/pipeline-templates/docker-builder/alpine-curl-jq-git
   before_script:
     - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
     - if ! [ -d "$CI_PROJECT_DIR/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/destroy-scheduler ; fi
@@ -134,7 +134,6 @@ schedule-destroy:
       when: never
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: on_success
-
 
 destroy:
   stage: destroy
