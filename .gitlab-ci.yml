@@ -24,6 +24,7 @@ cache:
 .before_script_terraform:
   before_script:
   - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+  - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/terraform" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform ; fi
   - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
   - rm -rf $CI_PROJECT_DIR/tmp
   - cd ${TF_ROOT}
@@ -102,7 +103,8 @@ ansible_deploy:
     ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
   before_script:
     - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
-    - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/terraform" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform ; fi
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/ansible" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/ansible ; fi
     - mv $CI_PROJECT_DIR/tmp/ansible/* $CI_PROJECT_DIR/gitlab-wireguard-runner/ansible
     - rm -rf $CI_PROJECT_DIR/tmp
     - !reference [.ansible_deploy_template, before_script]
@@ -127,14 +129,13 @@ schedule-destroy:
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: on_success
 
+
 destroy:
   stage: destroy
-  before_script:
-    - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
-    - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
+  before_script:     
+    - !reference [.ansible_deploy_template, before_script]
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler ; fi
     - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
-    - rm -rf $CI_PROJECT_DIR/tmp
-    - cd ${TF_ROOT}
   script:
     - gitlab-terraform destroy
     - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
