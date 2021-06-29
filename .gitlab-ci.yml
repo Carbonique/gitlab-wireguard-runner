@@ -97,6 +97,12 @@ apply:
 #Uses template file as template
 ansible_deploy:
   stage: ansible
+  before_script:
+    - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+    - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
+    - mv $CI_PROJECT_DIR/tmp/ansible/* $CI_PROJECT_DIR/gitlab-wireguard-runner/ansible
+    - rm -rf $CI_PROJECT_DIR/tmp
+    - !reference [ansible_deploy, before_script]
   variables:
     ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
   dependencies: 
