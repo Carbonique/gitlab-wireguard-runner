@@ -117,30 +117,30 @@ stages:
 #    - if: '$CI_PIPELINE_SOURCE != "schedule"'
 #      when: on_success
 
-schedule-destroy:
-  variables:
-    TIMEZONE: UTC
-  stage: schedule_pipeline
-  image: registry.gitlab.com/pipeline-templates/docker-builder/alpine-curl-jq-git
-  before_script:
-    - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
-    - if ! [ -d "$CI_PROJECT_DIR/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/destroy-scheduler ; fi
-    - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/destroy-scheduler
-    - rm -rf $CI_PROJECT_DIR/tmp
-  script: 
-    - ${CI_PROJECT_DIR}/destroy-scheduler/schedule_destroy.sh
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-      when: on_success
-
+#schedule-destroy:
+#  variables:
+#    TIMEZONE: UTC
+#  stage: schedule_pipeline
+#  image: registry.gitlab.com/pipeline-templates/docker-builder/alpine-curl-jq-git
+#  before_script:
+#    - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+#    - if ! [ -d "$CI_PROJECT_DIR/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/destroy-scheduler ; fi
+#    - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/destroy-scheduler
+#    - rm -rf $CI_PROJECT_DIR/tmp
+#  script: 
+#    - ${CI_PROJECT_DIR}/destroy-scheduler/schedule_destroy.sh
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+#    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+#      when: on_success
+#
 destroy:
   stage: destroy
   before_script:     
     - !reference [.before_script_terraform, before_script]
     - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler ; fi
-    - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
+    - mv $CI_PROJECT_DIR/tmp/gitlab-wireguard-runner/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
   script:
     - gitlab-terraform destroy
     - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
