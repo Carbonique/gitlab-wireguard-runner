@@ -140,7 +140,7 @@ destroy:
   before_script:     
     - !reference [.before_script_terraform, before_script]
     - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler ; fi
-    - mv $CI_PROJECT_DIR/tmp/gitlab-wireguard-runner/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
+    - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
   script:
     - gitlab-terraform destroy
     - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
