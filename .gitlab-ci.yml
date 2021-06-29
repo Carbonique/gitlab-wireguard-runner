@@ -109,8 +109,8 @@ ansible_deploy:
     - mv $CI_PROJECT_DIR/tmp/ansible/* $CI_PROJECT_DIR/gitlab-wireguard-runner/ansible
     - rm -rf $CI_PROJECT_DIR/tmp
     - !reference [.ansible_deploy_template, before_script]
-  dependencies: 
-    - apply
+#  dependencies: 
+#    - apply
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
@@ -140,8 +140,8 @@ destroy:
   script:
     - gitlab-terraform destroy
     - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
-  dependencies:
-    - apply
+#  dependencies:
+#    - apply
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
