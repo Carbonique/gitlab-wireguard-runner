@@ -145,9 +145,10 @@ destroy:
     - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
     - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
     - rm -rf $CI_PROJECT_DIR/tmp 
+    - cd ${TF_ROOT}
   script:
     - gitlab-terraform destroy
-    - ${CI_PROJECT_DIR}/destroy-scheduler/remove_all_scheduled_destroys.sh
+    - ${CI_PROJECT_DIR}/gitlab-wireguard-runner/destroy-scheduler/remove_all_scheduled_destroys.sh
 #  dependencies:
 #    - apply
   rules:
