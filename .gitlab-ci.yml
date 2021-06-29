@@ -22,6 +22,7 @@ cache:
 
 #Weird, but works: Template clones it own repo, so you only have to include the .gitlab-ci.yml in the implementation project
 .before_script_terraform:
+  before_script:
   - git clone https://gitlab.com/pipeline-templates/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
   - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
   - rm -rf $CI_PROJECT_DIR/tmp
