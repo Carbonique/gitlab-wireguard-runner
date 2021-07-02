@@ -8,7 +8,7 @@ while read id; do
     curl --request DELETE --header "PRIVATE-TOKEN: $PIPELINE_ACCESS_TOKEN" "https://gitlab.com/api/v4/runners/${id}"
 done <runner_id_list
 
-#rm runner_id_list
+rm runner_id_list
 
 
 
