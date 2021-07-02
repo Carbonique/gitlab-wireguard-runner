@@ -117,6 +117,7 @@ ansible_deploy:
       when: never
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: on_success
+
 schedule-destroy:
   variables:
     TIMEZONE: UTC
@@ -148,6 +149,7 @@ destroy:
   script:
     - gitlab-terraform destroy
     - ${CI_PROJECT_DIR}/gitlab-wireguard-runner/destroy-scheduler/remove_all_scheduled_destroys.sh
+    - ${CI_PROJECT_DIR}/gitlab-wireguard-runner/destroy-scheduler/runner_unregister.sh 
   dependencies:
     - apply
   rules:
