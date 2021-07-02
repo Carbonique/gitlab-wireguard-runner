@@ -94,7 +94,8 @@ apply:
       when: never
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
       when: on_success
-Uses template file as template
+
+#Uses template file as template
 ansible_deploy:
   extends: .ansible_deploy_template
   stage: ansible
@@ -109,8 +110,8 @@ ansible_deploy:
     - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
     - rm -rf $CI_PROJECT_DIR/tmp
     - !reference [.ansible_deploy_template, before_script]
-#  dependencies: 
-#    - apply
+  dependencies: 
+    - apply
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
