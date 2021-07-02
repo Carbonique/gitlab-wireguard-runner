@@ -11,6 +11,10 @@ provider "aws" {
     region = "eu-west-1"
 }
 
+variable NUMBER_OF_RUNNERS {
+  type = string
+}
+
 variable SSH_PUBLIC_KEY {
   type = string
 }
@@ -48,7 +52,7 @@ resource "aws_instance" "runner" {
     subnet_id = aws_default_subnet.default_eu-west-1a.id
     vpc_security_group_ids = [aws_security_group.gitlab-sg.id]
     associate_public_ip_address = true
-    count =  "1"
+    count =  var.NUMBER_OF_RUNNERS
 
 }
 
