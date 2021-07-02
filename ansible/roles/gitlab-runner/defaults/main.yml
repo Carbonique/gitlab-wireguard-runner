@@ -1,5 +1,4 @@
 gitlab_url: https://gitlab.com/
-#gitlab_api_token: "{{ lookup('env', 'GITLAB_RUNNER_API_TOKEN') }}"
 gitlab_runner_default_docker_image: "alpine:latest"
 gitlab_runner_registration_token: "{{ lookup('env', 'GITLAB_RUNNER_REGISTRATION_TOKEN') }}"
 gitlab_runner_executor: docker
