@@ -1,10 +1,5 @@
 include: "https://gitlab.com/pipeline-templates/gitlab-ci-templates/-/raw/main/ansible/deploy/ansible-deploy-template.yml"
 
-# Never run as this is a template. Override this in the implementation
-workflow:
-  rules:
-    - when: never
-
 #Note: Variables are relative to the project in which this template is used.
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/gitlab-wireguard-runner/terraform
