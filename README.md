@@ -7,6 +7,7 @@
     - [1. Add vars to the implementation project](#1-add-vars-to-the-implementation-project)
     - [2. Add wireguard configs to your implementation project.](#2-add-wireguard-configs-to-your-implementation-project)
     - [3. Include the template in your implementation .gitlab-ci.yml](#3-include-the-template-in-your-implementation-gitlab-ciyml)
+    - [4. Configure projects.](#4-configure-projects)
 
 # About
 
@@ -117,3 +118,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
 ```
+
+### 4. Configure projects.
+
+Disable GitLab public runners and enable your own [runners](https://docs.gitlab.com/13.12/ee/ci/runners/#disable-shared-runners).
