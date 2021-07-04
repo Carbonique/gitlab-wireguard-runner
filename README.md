@@ -21,8 +21,8 @@ not targeted by the GitLab pipelines, but deploying on the Wireguard server woul
 The project is aimed at selfhosters and tinkerers wanting to use GitLab CI for deploying their applications or infrastructure.
 The project aims to:
 
-1. Minimize cost by scheduling a destroy of the GitLab runners
-2. Maximize security by using Wireguard
+1. Minimize costs by only spinning up runners when needed and by scheduling a destroy of the GitLab runners after a certain amount of time
+2. Maximize security by using Wireguard so you don't need to open many ports
 3. Maximize ease of use by providing a template which can be implemented in a `.gitlab-ci.yml` file.
 
 # How the template works
@@ -42,7 +42,7 @@ The following items should be present and will not be covered by this project.
 1. Wireguard server (including port forwarding etcetera)
 2. Wireguard client configs (one config needed per runner)
 3. AWS access keys
-4. SSH private key
+4. SSH keypair
 
 # How to get started
 
@@ -55,15 +55,15 @@ To implement the project one would need to do the following:
 
 I would strongly recommend to store the following vars as GitLab secrets.
 
-| Description                                                     | Variable name                    |
-|-----------------------------------------------------------------|----------------------------------|
-| SSH private key                                                 | SSH_PRIVATE_KEY                  |
-| SSH public key                                                  | SSH_PUBLIC_KEY                   |
-| AWS access key                                                  | AWS_ACCESS_KEY_ID                |
-| AWS secret access key                                           | AWS_SECRET_ACCESS_KEY            |
-| AWS region to deploy in                                         | AWS_DEFAULT_REGION               |
-| GitLab API token needed for scheduling and cancelling pipelines | PIPELINE_ACCESS_TOKEN            |
-| GitLab runner registration token for registring runners         | GITLAB_RUNNER_REGISTRATION_TOKEN |
+| Variable name                    | Description                                                     |
+|----------------------------------|-----------------------------------------------------------------|
+| SSH_PRIVATE_KEY                  | SSH private key                                                 |
+| SSH_PUBLIC_KEY                   | SSH public key                                                  |
+| AWS_ACCESS_KEY_ID                | AWS access key                                                  |
+| AWS_SECRET_ACCESS_KEY            | AWS secret access key                                           |
+| AWS_DEFAULT_REGION               | AWS region to deploy in                                         |
+| PIPELINE_ACCESS_TOKEN            | GitLab API token needed for scheduling and cancelling pipelines |
+| GITLAB_RUNNER_REGISTRATION_TOKEN | GitLab runner registration token for registring runners         |
 
 ### 2. Add wireguard configs to your implementation project.
 
@@ -77,9 +77,9 @@ wireguard-encrypted-config-2
 
 I recommend encrypting these configs in which case you would need to provide encryption password to Ansible. Again, I recommend to store the var as a GitLab secret.
 
-| Description                                                     | Variable name                    |
-|-----------------------------------------------------------------|----------------------------------|
-| Wireguard config encryption password                                                | ANSIBLE_VAULT_PASSWORD                  |
+| Variable name                    | Description                                                     |
+|----------------------------------|-----------------------------------------------------------------|
+                    | ANSIBLE_VAULT_PASSWORD                  | Wireguard config encryption password |
 
 
 ### 3. Include the template in your implementation .gitlab-ci.yml
