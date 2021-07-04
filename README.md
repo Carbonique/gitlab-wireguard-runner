@@ -68,11 +68,13 @@ I would strongly recommend to store the following vars as GitLab secrets.
 ### 2. Add wireguard configs to your implementation project.
 
 For every GitLab runner there should be a file `wireguard-encrypted-config-[<NUMBER OF RUNNER>]` in the directory `wireguard-configs`.
-E.g. if you want three runners, you would need the following files in `wireguard-configs`:
+E.g. if you want three runners, you would need the following setup:
 ```
-wireguard-encrypted-config-0
-wireguard-encrypted-config-1
-wireguard-encrypted-config-2
+.
+└── wireguard-configs/
+    ├── wireguard-encrypted-config-0
+    ├── wireguard-encrypted-config-1
+    └── wireguard-encrypted-config-2
 ```
 
 I recommend encrypting these configs in which case you would need to provide encryption password to Ansible. Again, I recommend to store the var as a GitLab secret.
