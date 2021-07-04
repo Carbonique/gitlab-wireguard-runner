@@ -39,7 +39,7 @@ in 1 hour.
 # Requirements
 The following items should be present and will not be covered by this project.
 
-1. Wireguard server (including port forwarding etcetera)
+1. Wireguard server (including port forwarding)
 2. Wireguard client configs (one config needed per runner)
 3. AWS access keys
 4. SSH keypair
@@ -79,9 +79,9 @@ E.g. if you want three runners, you would need the following setup:
 
 I recommend encrypting these configs in which case you would need to provide encryption password to Ansible. Again, I recommend to store the var as a GitLab secret.
 
-| Variable name                    | Description                                                     |
-|----------------------------------|-----------------------------------------------------------------|
-                    | ANSIBLE_VAULT_PASSWORD                  | Wireguard config encryption password |
+| Variable name                    | Description                          |
+|----------------------------------|--------------------------------------|
+| ANSIBLE_VAULT_PASSWORD           | Wireguard config encryption password |
 
 
 ### 3. Include the template in your implementation .gitlab-ci.yml
@@ -102,3 +102,18 @@ include:
 | TF_VAR_NUMBER_OF_RUNNERS   | Number of runners                                                | 1                                  |
 | WIREGUARD_CONFIG_DIRECTORY | Directory of Wireguard configs                                   | ${CI_PROJECT_DIR}/wireguard-config |
 | TIMEZONE                   | Timezone used in pipeline schedules, for a list of timezones [see](https://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html) | UTC                                |
+
+``` yml
+include:
+  remote: "https://gitlab.com/pipeline-templates/gitlab-wireguard-runner/-/raw/main/.gitlab-ci.yml"
+
+variables:
+    TIMEZONE: Europe/Berlin
+    TF_VAR_NUMBER_OF_RUNNERS: 4
+
+#Only deploy if triggered through GitLab web console
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+```
