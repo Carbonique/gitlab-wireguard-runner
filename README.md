@@ -62,7 +62,6 @@ I would strongly recommend to store the following vars as GitLab secrets.
 | SSH_PUBLIC_KEY                   | SSH public key                                                  |
 | AWS_ACCESS_KEY_ID                | AWS access key                                                  |
 | AWS_SECRET_ACCESS_KEY            | AWS secret access key                                           |
-| AWS_DEFAULT_REGION               | AWS region to deploy in                                         |
 | PIPELINE_ACCESS_TOKEN            | GitLab API token needed for scheduling and cancelling pipelines |
 | GITLAB_RUNNER_REGISTRATION_TOKEN | GitLab runner registration token for registring runners         |
 
@@ -102,7 +101,8 @@ include:
 | TF_VAR_SSH_PUBLIC_KEY      | Public key used for connecting to the AWS instances              | $SSH_PUBLIC_KEY                    |
 | TF_VAR_NUMBER_OF_RUNNERS   | Number of runners                                                | 1                                  |
 | WIREGUARD_CONFIG_DIRECTORY | Directory of Wireguard configs                                   | ${CI_PROJECT_DIR}/wireguard-config |
-| TIMEZONE                   | Timezone used in pipeline schedules, for a list of timezones [see](https://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html) | UTC                                |
+| TIMEZONE                   | Timezone used in pipeline schedules, for a list of timezones [see](https://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html) UTC                                |
+| TF_VAR_AWS_REGION               | AWS region to deploy in                                    | eu-west-1 |
 
 ``` yml
 include:
