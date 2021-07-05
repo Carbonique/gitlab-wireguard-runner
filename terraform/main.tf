@@ -29,7 +29,7 @@ variable SSH_PUBLIC_KEY {
 }
 
 resource "aws_default_subnet" "default_subnet" {
-  availability_zone = = "${var.AWS_REGION}.${var.SUBNET_LETTER}"
+  availability_zone = "${var.AWS_REGION}.${var.SUBNET_LETTER}"
 }
 
 resource "aws_security_group" "gitlab-sg" {
