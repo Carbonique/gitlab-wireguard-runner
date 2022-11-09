@@ -1,0 +1,169 @@
+include: "https://gitlab.com/carbonique/gitlab-ci-templates/-/raw/main/ansible/deploy/ansible-deploy-template.yml"
+
+#Note: Variables are relative to the project in which this template is used.
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/gitlab-wireguard-runner/terraform
+  TF_STATE_NAME: runner
+  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}
+  TF_VAR_SSH_PUBLIC_KEY: $SSH_PUBLIC_KEY
+  TF_VAR_NUMBER_OF_RUNNERS: "1"
+  TF_VAR_AWS_REGION: eu-west-1
+  WIREGUARD_CONFIG_DIRECTORY: ${CI_PROJECT_DIR}/wireguard-configs
+
+image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+
+cache:
+  key: $TF_STATE_NAME
+  paths:
+    - ${TF_ROOT}/.terraform
+
+#Weird, but works: Template clones it own repo, so you only have to include the .gitlab-ci.yml in the implementation project
+.before_script_terraform:
+  before_script:
+  - git clone https://gitlab.com/carbonique/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+  - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/terraform" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform ; fi
+  - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
+  - rm -rf $CI_PROJECT_DIR/tmp
+  - cd ${TF_ROOT}
+
+stages:
+  - prepare
+  - validate
+  - build
+  - deploy
+  - ansible
+  - schedule_pipeline
+  - destroy
+
+init:
+  stage: prepare
+  extends: .before_script_terraform
+  script:
+    - gitlab-terraform init
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DESTROY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
+
+validate:
+  stage: validate
+  extends: .before_script_terraform
+  script:
+    - gitlab-terraform validate
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DESTROY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
+
+plan:
+  stage: build
+  extends: .before_script_terraform
+  script:
+    - gitlab-terraform plan
+    - gitlab-terraform plan-json
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DESTROY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
+
+apply:
+  stage: deploy
+  extends: .before_script_terraform
+  script:
+    - gitlab-terraform apply
+  dependencies:
+    - plan
+  artifacts:
+    paths:
+      - ${TF_ROOT}/instance_ips.ini
+    expire_in: 1 hour
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DESTROY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
+
+#Uses template file as template
+ansible_deploy:
+  extends: .ansible_deploy_template
+  stage: ansible
+  variables:
+    ANSIBLE_INVENTORY: ${TF_ROOT}/instance_ips.ini
+    ANSIBLE_PLAYBOOK_DIRECTORY: gitlab-wireguard-runner/ansible
+  before_script:
+    - git clone https://gitlab.com/carbonique/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/terraform" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform ; fi
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/ansible" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/ansible ; fi
+    - mv $CI_PROJECT_DIR/tmp/ansible/* $CI_PROJECT_DIR/gitlab-wireguard-runner/ansible
+    - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
+    - rm -rf $CI_PROJECT_DIR/tmp
+    - !reference [.ansible_deploy_template, before_script]
+  dependencies: 
+    - apply
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DESTROY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
+
+schedule-destroy:
+  variables:
+    TIMEZONE: UTC
+  stage: schedule_pipeline
+  image: registry.gitlab.com/carbonique/docker-builder/alpine-curl-jq-git
+  before_script:
+    - git clone https://gitlab.com/carbonique/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+    - if ! [ -d "$CI_PROJECT_DIR/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/destroy-scheduler ; fi
+    - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/destroy-scheduler
+    - rm -rf $CI_PROJECT_DIR/tmp
+  script: 
+    - ${CI_PROJECT_DIR}/destroy-scheduler/schedule_destroy.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DESTROY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: on_success
+
+destroy:
+  stage: destroy
+  before_script:
+    - git clone https://gitlab.com/carbonique/gitlab-wireguard-runner.git $CI_PROJECT_DIR/tmp
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/terraform" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform ; fi
+    - if ! [ -d "$CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler" ]; then mkdir $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler ; fi
+    - mv $CI_PROJECT_DIR/tmp/terraform/* $CI_PROJECT_DIR/gitlab-wireguard-runner/terraform
+    - mv $CI_PROJECT_DIR/tmp/destroy-scheduler/* $CI_PROJECT_DIR/gitlab-wireguard-runner/destroy-scheduler
+    - rm -rf $CI_PROJECT_DIR/tmp 
+    - cd ${TF_ROOT}
+  script:
+    - gitlab-terraform destroy
+    - ${CI_PROJECT_DIR}/gitlab-wireguard-runner/destroy-scheduler/remove_all_scheduled_destroys.sh
+    - ${CI_PROJECT_DIR}/gitlab-wireguard-runner/destroy-scheduler/runner_unregister.sh 
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$DESTROY == "true"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
+

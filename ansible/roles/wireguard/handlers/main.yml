@@ -1,0 +1,4 @@
+- name: wg_restart
+  ansible.builtin.service:
+    name: "wg-quick@wireguardclient.service"
+    state: restarted

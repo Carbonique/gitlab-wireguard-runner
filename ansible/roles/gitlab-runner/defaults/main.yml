@@ -1,0 +1,9 @@
+gitlab_url: https://gitlab.com/
+gitlab_runner_default_docker_image: "alpine:latest"
+gitlab_runner_registration_token: "{{ lookup('env', 'GITLAB_RUNNER_REGISTRATION_TOKEN') }}"
+gitlab_runner_executor: docker
+gitlab_runner_description: "wireguard-runner-{{groups['all'].index(inventory_hostname)}}"
+gitlab_runner_tags: docker,aws
+gitlab_runner_access_level: not_protected
+gitlab_runner_untagged_builds_run: True
+gitlab_runner_lock_to_project: False
